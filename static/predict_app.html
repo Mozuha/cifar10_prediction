@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang='en'>
+    <head>
+        <title>Cifar10-Prediction</title>
+    </head>
+    <body>
+        <hr>
+        <input id='image-selector' type='file'>
+        <button id='predict-button'>Predict</button>
+        <h3>List of categories</h3>
+        <ul>
+            <li>Airplane</li>
+            <li>Automobile</li>
+            <li>Bird</li>
+            <li>Cat</li>
+            <li>Deer</li>
+            <li>Dog</li>
+            <li>Frog</li>
+            <li>Horse</li>
+            <li>Ship</li>
+            <li>Truck</li>
+        </ul>
+        <hr>
+        <h3>Prediction Result</h3>
+        <p style='font-size: larger'>This is...<span id='prediction'></span></p>
+        <img id='selected-image' src='' width='600' height='400'/>
+
+        <script src='https://code.jquery.com/jquery-3.5.1.min.js'></script>
+        <script>
+            let base64Image;
+            $('#image-selector').change(function() {
+                const reader = new FileReader();
+                const extension = this.files[0].name.split('.').pop().toLowerCase();
+                console.log(extension);
+
+                if (extension === 'png') {
+                    reader.onload = function(e) {
+                        const dataURL = reader.result;
+                        $('#selected-image').attr('src', dataURL);
+                        base64Image = dataURL.replace('data:image/png;base64,', '');
+                    }
+                    reader.readAsDataURL($('#image-selector')[0].files[0]);
+                    $('#prediction').text('');
+                }
+
+                if (extension === 'jpg' || extension === 'jpeg') {
+                    reader.onload = function(e) {
+                        const dataURL = reader.result;
+                        $('#selected-image').attr('src', dataURL);
+                        base64Image = dataURL.replace('data:image/jpeg;base64,', '');
+                    }
+                    reader.readAsDataURL($('#image-selector')[0].files[0]);
+                    $('#prediction').text('');
+                }
+            });
+            
+            $('#predict-button').click(function(event) {
+                let message = {
+                    image: base64Image
+                }
+                console.log(message);
+                $.post('http://localhost:5000/predict', JSON.stringify(message), function(response) {
+                    $('#prediction').text(response + '!');
+                    console.log(response);
+                });
+            });
+        </script>
+    </body>
+</html>
